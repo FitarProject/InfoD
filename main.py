@@ -34,10 +34,14 @@ class Window(QWidget, Ui_main_window):
         self.toolButton_import.clicked.connect(self.toolButton_import_event)
         self.toolButton_export.clicked.connect(self.toolButton_export_event)
         self.toolButton_change.clicked.connect(self.toolButton_change_event)
-        self.comboBox_1.currentIndexChanged.connect(self.comboBox_1_event)
-        self.comboBox_2.currentIndexChanged.connect(self.comboBox_2_event)
-        self.comboBox_3.currentIndexChanged.connect(self.comboBox_3_event)
-        self.comboBox_4.currentIndexChanged.connect(self.comboBox_4_event)
+        # self.comboBox_1.currentIndexChanged.connect(self.comboBox_1_event)
+        # self.comboBox_2.currentIndexChanged.connect(self.comboBox_2_event)
+        # self.comboBox_3.currentIndexChanged.connect(self.comboBox_3_event)
+        # self.comboBox_4.currentIndexChanged.connect(self.comboBox_4_event)
+        self.comboBox_1.activated[int].connect(self.comboBox_1_event)
+        self.comboBox_2.activated[int].connect(self.comboBox_2_event)
+        self.comboBox_3.activated[int].connect(self.comboBox_3_event)
+        self.comboBox_4.activated[int].connect(self.comboBox_4_event)
 
     def page_init(self):
         try:
@@ -54,6 +58,20 @@ class Window(QWidget, Ui_main_window):
 
     # 设置qss
     def set_qss(self):
+        # 设置下拉框固定宽度
+        self.comboBox_1.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)
+        self.comboBox_2.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)
+        self.comboBox_3.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)
+        self.comboBox_4.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)
+        # 设置tooltips
+        for index in range(self.comboBox_1.count()):
+            self.comboBox_1.setItemData(index, self.comboBox_1.itemText(index), role=Qt.ToolTipRole)
+        for index in range(self.comboBox_2.count()):
+            self.comboBox_2.setItemData(index, self.comboBox_2.itemText(index), role=Qt.ToolTipRole)
+        for index in range(self.comboBox_3.count()):
+            self.comboBox_3.setItemData(index, self.comboBox_3.itemText(index), role=Qt.ToolTipRole)
+        for index in range(self.comboBox_4.count()):
+            self.comboBox_4.setItemData(index, self.comboBox_4.itemText(index), role=Qt.ToolTipRole)
         pass
 
     # 设置图标
@@ -83,9 +101,9 @@ class Window(QWidget, Ui_main_window):
 
     # 功能函数
     # 功能选择槽函数
-    def comboBox_1_event(self):
+    def comboBox_1_event(self, func_index):
         try:
-            func_index = self.comboBox_1.currentIndex()
+            # func_index = self.comboBox_1.currentIndex()
             if func_index == 0:
                 print("文本操作类")
             elif func_index == 1:
@@ -160,12 +178,21 @@ class Window(QWidget, Ui_main_window):
             elif func_index == 15:
                 self.func_string_to_ascii()
                 self.label_step.setText("执行功能：进行ASCII编码转换")
+            elif func_index == 16:
+                self.func_replace_space_to_break()
+                self.label_step.setText("执行功能：逗号转为换行")
+            elif func_index == 17:
+                self.func_remove_break()
+                self.label_step.setText("执行功能：剔除换行")
+            elif func_index == 18:
+                self.func_remove_space()
+                self.label_step.setText("执行功能：剔除空格")
         except Exception as e:
             print("Exception in main --> " + "comboBox_1_event", e)
 
-    def comboBox_2_event(self):
+    def comboBox_2_event(self, func_index):
         try:
-            func_index = self.comboBox_2.currentIndex()
+            # func_index = self.comboBox_2.currentIndex()
             if func_index == 0:
                 print("文本筛选类")
             elif func_index == 1:
@@ -176,21 +203,35 @@ class Window(QWidget, Ui_main_window):
                 else:
                     self.label_error.setText("info：用户取消操作")
             elif func_index == 2:
-                string_input, status = QInputDialog.getText(self, '去除指定字符串所在行', '指定的字符串：')
+                string_input, status = QInputDialog.getText(self, '提取指定字符串所在行', '指定的字符串：')
                 if status:
                     self.func_extract_str(string_input)
                     self.label_step.setText("执行功能：提取指定字符串所在行")
                 else:
                     self.label_error.setText("info：用户取消操作")
             elif func_index == 3:
+                string_input, status = QInputDialog.getText(self, '去除多个指定字符串所在行', '要去除的列表文件：')
+                if status:
+                    self.func_remove_mult_special_str(string_input)
+                    self.label_step.setText("执行功能：去除多个指定字符串所在行")
+                else:
+                    self.label_error.setText("info：用户取消操作")
+            elif func_index == 4:
+                string_input, status = QInputDialog.getText(self, '提取多个指定字符串所在行', '要提取的列表文件：')
+                if status:
+                    self.func_extract_mult_str(string_input)
+                    self.label_step.setText("执行功能：提取多个指定字符串所在行")
+                else:
+                    self.label_error.setText("info：用户取消操作")
+            elif func_index == 5:
                 self.func_remove_void_str()
                 self.label_step.setText("执行功能：去除无效行")
         except Exception as e:
             print("Exception in main --> " + "comboBox_2_event", e)
 
-    def comboBox_3_event(self):
+    def comboBox_3_event(self, func_index):
         try:
-            func_index = self.comboBox_3.currentIndex()
+            # func_index = self.comboBox_3.currentIndex()
             if func_index == 0:
                 print("信息提取类")
             elif func_index == 1:
@@ -220,9 +261,9 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "comboBox_3_event", e)
 
-    def comboBox_4_event(self):
+    def comboBox_4_event(self, func_index):
         try:
-            func_index = self.comboBox_4.currentIndex()
+            # func_index = self.comboBox_4.currentIndex()
             if func_index == 0:
                 print("结果处理类")
             elif func_index == 1:
@@ -233,6 +274,10 @@ class Window(QWidget, Ui_main_window):
                 # self.func_convert_hb_cookie()
                 pass
                 self.label_step.setText("执行功能：hb转换Cookie格式")
+            elif func_index == 3:
+                # self.func_remove_ehole_blank()
+                pass
+                self.label_step.setText("执行功能：棱洞去除干扰行")
         except Exception as e:
             print("Exception in main --> " + "comboBox_4_event", e)
 
@@ -771,6 +816,66 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_string_to_ascii", e)
 
+    # 逗号转为换行 16
+    def func_replace_space_to_break(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                str_tmp = input_text.replace(",", "\n")
+                self.plainTextEdit_output.setPlainText(str_tmp)
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("逗号转为换行")
+                self.output_history.append(str_tmp)
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_replace_space_to_break", e)
+
+    # 剔除换行 17
+    def func_remove_break(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                str_tmp = ''
+                for i in lines:
+                    str_tmp += i
+                self.plainTextEdit_output.setPlainText(str_tmp)
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("剔除换行")
+                self.output_history.append(str_tmp)
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_break", e)
+
+    # 剔除空格 18
+    def func_remove_space(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                str_tmp = input_text.replace(" ", "")
+                self.plainTextEdit_output.setPlainText(str_tmp)
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("剔除空格")
+                self.output_history.append(str_tmp)
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_space", e)
+
     # 去除指定字符串所在行 2-1
     def func_remove_special_str(self, string_tmp):
         try:
@@ -823,7 +928,51 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_extract_str", e)
 
-    # 提取指定字符串所在行 2-3
+    # 去除多个指定字符串所在行 2-3
+    def func_remove_mult_special_str(self, file_name):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                with open(file_name, "r") as f:
+                    remove_list = f.readlines()
+                list_tmp = [item for item in lines if item not in remove_list]
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("去除多个指定字符串所在行")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_void_str", e)
+
+    # 提取多个指定字符串所在行 2-4
+    def func_extract_mult_str(self, file_name):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                with open(file_name, "r") as f:
+                    remove_list = f.readlines()
+                list_tmp = [item for item in lines if any(substring in item for substring in remove_list)]
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("提取多个指定字符串所在行")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_void_str", e)
+
+    # 去除无效行 2-5
     def func_remove_void_str(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
@@ -837,7 +986,7 @@ class Window(QWidget, Ui_main_window):
                 if self.current_step != len(self.operation_history) - 1:
                     self.operation_history = self.operation_history[:self.current_step + 1]
                     self.output_history = self.output_history[:self.current_step + 1]
-                self.operation_history.append("提取指定字符串所在行")
+                self.operation_history.append("去除无效行")
                 self.output_history.append("\n".join(list_tmp))
                 self.current_step += 1
                 self.label_error.setText("")
@@ -1048,6 +1197,78 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_get_root_domain", e)
 
+    # fscan提取有效结果 4-1
+    def func_get_fscan_plus(self):
+        try:
+            pass
+            # list_tmp = []
+            # with open(filename1, "r", encoding='utf-8') as f1:
+            #     lines1 = f1.readlines()
+            # with open(filename2, "r", encoding='utf-8') as f2:
+            #     lines2 = f2.readlines()
+            # for line in lines1:
+            #     if line in lines2:
+            #         list_tmp.append(line)
+            # self.plainTextEdit_output.setPlainText("".join(list_tmp))
+            # if self.current_step != len(self.operation_history) - 1:
+            #     self.operation_history = self.operation_history[:self.current_step + 1]
+            #     self.output_history = self.output_history[:self.current_step + 1]
+            # self.operation_history.append("fscan提取有效结果")
+            # self.output_history.append("".join(list_tmp))
+            # self.current_step += 1
+            # self.label_error.setText("")
+        except Exception as e:
+            print("Exception in main --> " + "func_get_fscan_plus", e)
+            self.label_error.setText("error：读取错误！")
+
+    # hackbrowser转换Cookie格式 4-2
+    def func_convert_hb_cookie(self):
+        try:
+            pass
+            # list_tmp = []
+            # with open(filename1, "r", encoding='utf-8') as f1:
+            #     lines1 = f1.readlines()
+            # with open(filename2, "r", encoding='utf-8') as f2:
+            #     lines2 = f2.readlines()
+            # for line in lines1:
+            #     if line in lines2:
+            #         list_tmp.append(line)
+            # self.plainTextEdit_output.setPlainText("".join(list_tmp))
+            # if self.current_step != len(self.operation_history) - 1:
+            #     self.operation_history = self.operation_history[:self.current_step + 1]
+            #     self.output_history = self.output_history[:self.current_step + 1]
+            # self.operation_history.append("hackbrowser转换Cookie格式")
+            # self.output_history.append("".join(list_tmp))
+            # self.current_step += 1
+            # self.label_error.setText("")
+        except Exception as e:
+            print("Exception in main --> " + "func_convert_hb_cookie", e)
+            self.label_error.setText("error：读取错误！")
+
+    # 棱洞去除干扰行 4-3 // " 403 "、" 404 "、" [] "
+    def func_remove_ehole_blank(self):
+        try:
+            pass
+            # list_tmp = []
+            # with open(filename1, "r", encoding='utf-8') as f1:
+            #     lines1 = f1.readlines()
+            # with open(filename2, "r", encoding='utf-8') as f2:
+            #     lines2 = f2.readlines()
+            # for line in lines1:
+            #     if line in lines2:
+            #         list_tmp.append(line)
+            # self.plainTextEdit_output.setPlainText("".join(list_tmp))
+            # if self.current_step != len(self.operation_history) - 1:
+            #     self.operation_history = self.operation_history[:self.current_step + 1]
+            #     self.output_history = self.output_history[:self.current_step + 1]
+            # self.operation_history.append("棱洞去除干扰行")
+            # self.output_history.append("".join(list_tmp))
+            # self.current_step += 1
+            # self.label_error.setText("")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_ehole_blank", e)
+            self.label_error.setText("error：读取错误！")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -1059,6 +1280,7 @@ if __name__ == '__main__':
     window = Window()
     # window.setWindowIcon(QIcon('resource/image/logo.png'))
     window.setWindowIcon(QIcon(':/logo.png'))
+    window.resize(1150, 750)
     window.show()
 
     splash.finish(window)
