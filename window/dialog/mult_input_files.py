@@ -1,6 +1,7 @@
 from PyQt5.Qt import *
 
 from window.ui.dialog_input_files import Ui_Form
+import os
 
 
 class Dialog_input_files(QWidget, Ui_Form):
@@ -30,9 +31,15 @@ class Dialog_input_files(QWidget, Ui_Form):
 
     def pushButton_yes_event(self):
         try:
-            self.inputs.emit(self.func_num, self.lineEdit.text(), self.lineEdit_2.text())
-            self.dialog_close.emit(True)
-            self.close()
+            if os.path.exists(self.lineEdit.text()):
+                if os.path.exists(self.lineEdit_2.text()):
+                    self.inputs.emit(self.func_num, self.lineEdit.text(), self.lineEdit_2.text())
+                    self.dialog_close.emit(True)
+                    self.close()
+                else:
+                    QMessageBox.critical(self, "输入错误", "文件2不存在")
+            else:
+                QMessageBox.critical(self, "输入错误", "文件1不存在")
         except Exception as e:
             print("Exception in Dialog_input_files --> " + "pushButton_yes_event", e)
 
