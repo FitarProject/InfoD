@@ -1,4 +1,5 @@
 import ctypes
+import json
 import re
 import sys
 
@@ -104,6 +105,7 @@ class Window(QWidget, Ui_main_window):
     # 功能选择槽函数
     def comboBox_1_event(self, func_index):
         try:
+            self.comboBox_1.setToolTip(self.comboBox_1.itemText(func_index))
             # func_index = self.comboBox_1.currentIndex()
             if func_index == 0:
                 print("文本操作类")
@@ -193,6 +195,7 @@ class Window(QWidget, Ui_main_window):
 
     def comboBox_2_event(self, func_index):
         try:
+            self.comboBox_2.setToolTip(self.comboBox_2.itemText(func_index))
             # func_index = self.comboBox_2.currentIndex()
             if func_index == 0:
                 print("文本筛选类")
@@ -237,6 +240,7 @@ class Window(QWidget, Ui_main_window):
 
     def comboBox_3_event(self, func_index):
         try:
+            self.comboBox_3.setToolTip(self.comboBox_3.itemText(func_index))
             # func_index = self.comboBox_3.currentIndex()
             if func_index == 0:
                 print("信息提取类")
@@ -269,19 +273,19 @@ class Window(QWidget, Ui_main_window):
 
     def comboBox_4_event(self, func_index):
         try:
+            self.comboBox_4.setToolTip(self.comboBox_4.itemText(func_index))
             # func_index = self.comboBox_4.currentIndex()
             if func_index == 0:
                 print("结果处理类")
             elif func_index == 1:
-                # self.func_get_fscan_result()
-                pass
+                self.func_get_fscan_plus()
                 self.label_step.setText("执行功能：fscan提取有效结果")
             elif func_index == 2:
-                # self.func_convert_hb_cookie()
+                self.func_convert_hb_cookie()
                 pass
-                self.label_step.setText("执行功能：hb转换Cookie格式")
+                self.label_step.setText("执行功能：hb转换Cookie为可导入格式")
             elif func_index == 3:
-                # self.func_remove_ehole_blank()
+                self.func_remove_ehole_blank()
                 pass
                 self.label_step.setText("执行功能：棱洞去除干扰行")
         except Exception as e:
@@ -314,6 +318,10 @@ class Window(QWidget, Ui_main_window):
             self.comboBox_2.setCurrentIndex(0)
             self.comboBox_3.setCurrentIndex(0)
             self.comboBox_4.setCurrentIndex(0)
+            self.comboBox_1.setToolTip("")
+            self.comboBox_2.setToolTip("")
+            self.comboBox_3.setToolTip("")
+            self.comboBox_4.setToolTip("")
             self.label_error.setText("用户操作：重置功能选项")
         except Exception as e:
             print("Exception in main --> " + "toolButton_ori_event", e)
@@ -1212,7 +1220,25 @@ class Window(QWidget, Ui_main_window):
     # fscan提取有效结果 4-1
     def func_get_fscan_plus(self):
         try:
-            pass
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                list_tmp = []
+                string = r'^(.*?)\[\+(.*?)'
+                for line in lines:
+                    match = re.findall(string, line)
+                    if match:
+                        list_tmp.append(line)
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("fscan提取有效结果")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
             # list_tmp = []
             # with open(filename1, "r", encoding='utf-8') as f1:
             #     lines1 = f1.readlines()
@@ -1233,26 +1259,32 @@ class Window(QWidget, Ui_main_window):
             print("Exception in main --> " + "func_get_fscan_plus", e)
             self.label_error.setText("error：读取错误！")
 
-    # hackbrowser转换Cookie格式 4-2
+    # hackbrowser转换Cookie为可导入格式 4-2
     def func_convert_hb_cookie(self):
         try:
-            pass
-            # list_tmp = []
-            # with open(filename1, "r", encoding='utf-8') as f1:
-            #     lines1 = f1.readlines()
-            # with open(filename2, "r", encoding='utf-8') as f2:
-            #     lines2 = f2.readlines()
-            # for line in lines1:
-            #     if line in lines2:
-            #         list_tmp.append(line)
-            # self.plainTextEdit_output.setPlainText("".join(list_tmp))
-            # if self.current_step != len(self.operation_history) - 1:
-            #     self.operation_history = self.operation_history[:self.current_step + 1]
-            #     self.output_history = self.output_history[:self.current_step + 1]
-            # self.operation_history.append("hackbrowser转换Cookie格式")
-            # self.output_history.append("".join(list_tmp))
-            # self.current_step += 1
-            # self.label_error.setText("")
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                ori_str = input_text.replace("\n", "").replace(" ", "").replace("[", "").replace("]", "")
+                cookie_list = ori_str.split(",")
+                res_list = []
+                for i in cookie_list:
+                    tmp_dict = {}
+                    cookie_dict = json.loads(i)
+                    tmp_dict['domain'] = cookie_dict['Host']
+                    tmp_list = cookie_dict['Cookie'].replace(" ", "").split(";")
+                    for j in tmp_list:
+                        tmp_dict[j.split("=")[0]] = j.split("=")[1]
+                    res_list.append(json.dumps(tmp_dict))
+                self.plainTextEdit_output.setPlainText("\n".join(res_list))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("hackbrowser转换Cookie为可导入格式")
+                self.output_history.append("\n".join(res_list))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
         except Exception as e:
             print("Exception in main --> " + "func_convert_hb_cookie", e)
             self.label_error.setText("error：读取错误！")
@@ -1260,23 +1292,41 @@ class Window(QWidget, Ui_main_window):
     # 棱洞去除干扰行 4-3 // " 403 "、" 404 "、" [] "
     def func_remove_ehole_blank(self):
         try:
-            pass
-            # list_tmp = []
-            # with open(filename1, "r", encoding='utf-8') as f1:
-            #     lines1 = f1.readlines()
-            # with open(filename2, "r", encoding='utf-8') as f2:
-            #     lines2 = f2.readlines()
-            # for line in lines1:
-            #     if line in lines2:
-            #         list_tmp.append(line)
-            # self.plainTextEdit_output.setPlainText("".join(list_tmp))
-            # if self.current_step != len(self.operation_history) - 1:
-            #     self.operation_history = self.operation_history[:self.current_step + 1]
-            #     self.output_history = self.output_history[:self.current_step + 1]
-            # self.operation_history.append("棱洞去除干扰行")
-            # self.output_history.append("".join(list_tmp))
-            # self.current_step += 1
-            # self.label_error.setText("")
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                list_tmp = []
+                string_1 = r'^(.*?) 403 (.*?)'
+                string_2 = r'^(.*?) 404 (.*?)'
+                string_3 = r'^(.*?) \[] (.*?)'
+                for line in lines:
+                    match = re.findall(string_1, line)
+                    if match:
+                        list_tmp.append(line)
+                for line in list_tmp:
+                    lines.remove(line)
+                for line in lines:
+                    match = re.findall(string_2, line)
+                    if match:
+                        list_tmp.append(line)
+                for line in list_tmp:
+                    lines.remove(line)
+                for line in lines:
+                    match = re.findall(string_3, line)
+                    if match:
+                        list_tmp.append(line)
+                for line in list_tmp:
+                    lines.remove(line)
+                self.plainTextEdit_output.setPlainText("\n".join(lines))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("棱洞去除干扰行")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
         except Exception as e:
             print("Exception in main --> " + "func_remove_ehole_blank", e)
             self.label_error.setText("error：读取错误！")
