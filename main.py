@@ -1259,28 +1259,36 @@ class Window(QWidget, Ui_main_window):
             print("Exception in main --> " + "func_get_fscan_plus", e)
             self.label_error.setText("error：读取错误！")
 
-    # hackbrowser转换Cookie为可导入格式 4-2
+    # hackbrowser转换Cookie为可导入格式 4-2 // 结果直接导入即可，能导入的会自动导入成功
     def func_convert_hb_cookie(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
             if input_text:
                 ori_str = input_text.replace("\n", "").replace(" ", "").replace("[", "").replace("]", "")
-                cookie_list = ori_str.split(",")
+                cookie_list = ori_str.split("},")
                 res_list = []
                 for i in cookie_list:
                     tmp_dict = {}
-                    cookie_dict = json.loads(i)
+                    cookie_dict = json.loads(i.rstrip("}") + "}")
                     tmp_dict['domain'] = cookie_dict['Host']
                     tmp_list = cookie_dict['Cookie'].replace(" ", "").split(";")
                     for j in tmp_list:
-                        tmp_dict[j.split("=")[0]] = j.split("=")[1]
-                    res_list.append(json.dumps(tmp_dict))
-                self.plainTextEdit_output.setPlainText("\n".join(res_list))
+                        if "=" in j:
+                            if j.split("=")[1]:
+                                tmp_dict['name'] = j.split("=")[0]
+                                tmp_dict['value'] = j.split("=")[1]
+                                # tmp_dict[j.split("=")[0]] = j.split("=")[1]
+                            else:
+                                tmp_dict['name'] = j.split("=")[0]
+                                tmp_dict['value'] = "null"
+                                # tmp_dict[j.split("=")[0]] = "null"
+                            res_list.append(json.dumps(tmp_dict))
+                self.plainTextEdit_output.setPlainText("[\n" + ",\n".join(res_list) + "\n]")
                 if self.current_step != len(self.operation_history) - 1:
                     self.operation_history = self.operation_history[:self.current_step + 1]
                     self.output_history = self.output_history[:self.current_step + 1]
                 self.operation_history.append("hackbrowser转换Cookie为可导入格式")
-                self.output_history.append("\n".join(res_list))
+                self.output_history.append("[\n" + ",\n".join(res_list) + "\n]")
                 self.current_step += 1
                 self.label_error.setText("")
             else:
@@ -1305,12 +1313,14 @@ class Window(QWidget, Ui_main_window):
                         list_tmp.append(line)
                 for line in list_tmp:
                     lines.remove(line)
+                list_tmp = []
                 for line in lines:
                     match = re.findall(string_2, line)
                     if match:
                         list_tmp.append(line)
                 for line in list_tmp:
                     lines.remove(line)
+                list_tmp = []
                 for line in lines:
                     match = re.findall(string_3, line)
                     if match:
