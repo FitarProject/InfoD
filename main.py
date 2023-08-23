@@ -1,3 +1,4 @@
+import codecs
 import ctypes
 import json
 import re
@@ -182,12 +183,21 @@ class Window(QWidget, Ui_main_window):
                 self.func_string_to_ascii()
                 self.label_step.setText("执行功能：进行ASCII编码转换")
             elif func_index == 16:
+                self.func_unicode_to_string()
+                self.label_step.setText("执行功能：Unicode解码(\\u)")
+            elif func_index == 17:
+                self.func_utf8_to_string()
+                self.label_step.setText("执行功能：UTF-8字节转码(\\x)")
+            elif func_index == 18:
+                self.func_gbk_to_string()
+                self.label_step.setText("执行功能：GBK字节转码(\\x)")
+            elif func_index == 19:
                 self.func_replace_space_to_break()
                 self.label_step.setText("执行功能：逗号转为换行")
-            elif func_index == 17:
+            elif func_index == 20:
                 self.func_remove_break()
                 self.label_step.setText("执行功能：剔除换行")
-            elif func_index == 18:
+            elif func_index == 21:
                 self.func_remove_space()
                 self.label_step.setText("执行功能：剔除空格")
         except Exception as e:
@@ -836,7 +846,79 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_string_to_ascii", e)
 
-    # 逗号转为换行 16
+    # Unicode解码(\u) 16
+    def func_unicode_to_string(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            str_row = codecs.decode(input_text.encode().decode('unicode_escape').encode(), 'utf-8')
+            if str_row:
+                lines = str_row.split("\n")
+                list_tmp = []
+                for i in lines:
+                    list_tmp.append(i)
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("Unicode解码(\\u)")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_unicode_to_string", e)
+            self.label_error.setText("error：Unicode解码失败")
+
+    # UTF-8字节转码(\x) 17
+    def func_utf8_to_string(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                list_tmp = []
+                for i in lines:
+                    str_row = bytes.fromhex(i.replace(r'\x', ''))
+                    list_tmp.append(str_row.decode('utf-8'))
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("UTF-8字节转码(\\x)")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_utf8_to_string", e)
+            self.label_error.setText("error：UTF-8 解码失败")
+
+    # GBK字节转码(\x) 18
+    def func_gbk_to_string(self):
+        try:
+            input_text = self.plainTextEdit_input.toPlainText()
+            if input_text:
+                lines = input_text.split("\n")
+                list_tmp = []
+                for i in lines:
+                    str_row = bytes.fromhex(i.replace(r'\x', ''))
+                    list_tmp.append(str_row.decode('gbk'))
+                self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+                if self.current_step != len(self.operation_history) - 1:
+                    self.operation_history = self.operation_history[:self.current_step + 1]
+                    self.output_history = self.output_history[:self.current_step + 1]
+                self.operation_history.append("GBK字节转码(\\x)")
+                self.output_history.append("\n".join(list_tmp))
+                self.current_step += 1
+                self.label_error.setText("")
+            else:
+                self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_gbk_to_string", e)
+            self.label_error.setText("error：GBK 解码失败")
+
+    # 逗号转为换行 19
     def func_replace_space_to_break(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
@@ -855,7 +937,7 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_replace_space_to_break", e)
 
-    # 剔除换行 17
+    # 剔除换行 20
     def func_remove_break(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
@@ -877,7 +959,7 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_remove_break", e)
 
-    # 剔除空格 18
+    # 剔除空格 21
     def func_remove_space(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
@@ -992,7 +1074,55 @@ class Window(QWidget, Ui_main_window):
         except Exception as e:
             print("Exception in main --> " + "func_remove_void_str", e)
 
-    # 去除无效行 2-5
+    # 去除指定字符串前n后m行 2-5
+    def func_remove_block(self):
+        try:
+            pass
+            # input_text = self.plainTextEdit_input.toPlainText()
+            # if input_text:
+            #     lines = input_text.split("\n")
+            #     list_tmp = []
+            #     for line in lines:
+            #         if line.strip() != '':
+            #             list_tmp.append(line)
+            #     self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+            #     if self.current_step != len(self.operation_history) - 1:
+            #         self.operation_history = self.operation_history[:self.current_step + 1]
+            #         self.output_history = self.output_history[:self.current_step + 1]
+            #     self.operation_history.append("去除无效行")
+            #     self.output_history.append("\n".join(list_tmp))
+            #     self.current_step += 1
+            #     self.label_error.setText("")
+            # else:
+            #     self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_void_str", e)
+
+    # 提取指定字符串前n后m行 2-6
+    def func_extract_block(self):
+        try:
+            pass
+            # input_text = self.plainTextEdit_input.toPlainText()
+            # if input_text:
+            #     lines = input_text.split("\n")
+            #     list_tmp = []
+            #     for line in lines:
+            #         if line.strip() != '':
+            #             list_tmp.append(line)
+            #     self.plainTextEdit_output.setPlainText("\n".join(list_tmp))
+            #     if self.current_step != len(self.operation_history) - 1:
+            #         self.operation_history = self.operation_history[:self.current_step + 1]
+            #         self.output_history = self.output_history[:self.current_step + 1]
+            #     self.operation_history.append("去除无效行")
+            #     self.output_history.append("\n".join(list_tmp))
+            #     self.current_step += 1
+            #     self.label_error.setText("")
+            # else:
+            #     self.label_error.setText("error：输入内容为空")
+        except Exception as e:
+            print("Exception in main --> " + "func_remove_void_str", e)
+
+    # 去除无效行 2-7
     def func_remove_void_str(self):
         try:
             input_text = self.plainTextEdit_input.toPlainText()
