@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>back.png</file>
+        <file>change.png</file>
+        <file>deal.png</file>
+        <file>export.png</file>
+        <file>file.png</file>
+        <file>go.png</file>
+        <file>import.png</file>
+        <file>logo.png</file>
+        <file>reset.png</file>
+		<file>flash.png</file>
+    </qresource>
+</RCC>
